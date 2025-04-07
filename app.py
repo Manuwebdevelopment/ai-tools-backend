@@ -12,13 +12,17 @@ CORS(app)
 
 # Call OpenAI helper
 def call_openai(prompt):
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=800,
+    response = openai.ChatCompletion.create(
+        model="gpt-4",  # ← Use GPT-4 here
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1000,
         temperature=0.7
     )
-    return response.choices[0].text.strip()
+    return response.choices[0].message.content.strip()
+
 
 # Home route
 @app.route("/")
