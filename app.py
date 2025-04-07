@@ -13,7 +13,7 @@ CORS(app)
 # Call OpenAI helper
 def call_openai(prompt):
     response = openai.ChatCompletion.create(
-        model="gpt-4",  # ← Use GPT-4 here
+        model="gpt-4-turbo",  # 🏆 Best balance of cost, speed, quality
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": prompt}
