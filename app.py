@@ -1,35 +1,34 @@
 from flask import Flask, request, jsonify
-import openai
 import os
 from flask_cors import CORS
+from openai import OpenAI
 
-# Load OpenAI key
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+# Initialize OpenAI client
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-# Initialize Flask app
+# Flask setup
 app = Flask(__name__)
 CORS(app)
-
-# Call OpenAI helper
-def call_openai(prompt):
-    response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",  # 🏆 Best balance of cost, speed, quality
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=1000,
-        temperature=0.7
-    )
-    return response.choices[0].message.content.strip()
-
 
 # Home route
 @app.route("/")
 def home():
     return "AI Tools Backend is running"
 
-# Book Summary tool
+# Call OpenAI (chat-based)
+def call_openai(prompt):
+    response = client.chat.completions.create(
+        model="gpt-4-turbo",  # You can also use "gpt-4" if you prefer
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.7,
+        max_tokens=1000
+    )
+    return response.choices[0].message.content.strip()
+
+# Book Summary
 @app.route("/summarize", methods=["POST"])
 def summarize():
     user_input = request.json["text"]
@@ -55,7 +54,7 @@ Book title: {user_input}
 """
     return jsonify({"result": call_openai(prompt)})
 
-# Quiz Generator tool
+# Quiz Generator
 @app.route("/quiz", methods=["POST"])
 def quiz():
     user_input = request.json["text"]
@@ -75,14 +74,14 @@ Quiz:
 """
     return jsonify({"result": call_openai(prompt)})
 
-# Idea Generator tool
+# Idea Generator
 @app.route("/ideas", methods=["POST"])
 def ideas():
     user_input = request.json["text"]
     prompt = f"""
 You are a creative assistant who generates useful and original ideas.
 
-Generate at least 5 creative and practical ideas based on the following topic. Each idea should be 1-2 sentences long.
+Generate at least 5 creative and practical ideas based on the following topic. Each idea should be 1–2 sentences long.
 
 Topic: {user_input}
 
@@ -95,7 +94,7 @@ Ideas:
 """
     return jsonify({"result": call_openai(prompt)})
 
-# Run the app with dynamic port for Render
+# Run app
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
