@@ -8,6 +8,10 @@ CORS(app)
 import os
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Render sets this automatically
+    app.run(host="0.0.0.0", port=port)
+
 
 def call_openai(prompt):
     response = openai.Completion.create(
